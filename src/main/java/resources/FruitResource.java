@@ -1,7 +1,9 @@
 package resources;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -12,6 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
 
 import domain.entities.Fruit;
@@ -20,6 +23,7 @@ import domain.repositories.FruitRepository;
 @Path("/fruits")
 public class FruitResource {
     FruitRepository fruitRepository;
+    private AtomicLong counter = new AtomicLong(0);
 
     private static final Logger LOGGER = Logger.getLogger(FruitResource.class);
 
@@ -34,6 +38,25 @@ public class FruitResource {
     public Response list() {
         LOGGER.info("Listing all fruits");
         return Response.ok(fruitRepository.getAll()).build();
+    }
+
+    @GET
+    @Path("/can-fail")
+    @Retry(maxRetries = 4)
+    public Response maybeFaillist() {
+        final Long invocationNumber = counter.getAndIncrement();
+
+        maybeFail(String.format("CoffeeResource#coffees() invocation #%d failed", invocationNumber));
+
+        LOGGER.infof("CoffeeResource#coffees() invocation #%d returning successfully", invocationNumber);
+        return Response.ok(fruitRepository.getAll()).build();
+    }
+
+    private void maybeFail(String failureLogMessage) {
+        if (new Random().nextBoolean()) {
+            LOGGER.error(failureLogMessage);
+            throw new RuntimeException("Resource failure.");
+        }
     }
 
     @GET
