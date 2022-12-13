@@ -1,6 +1,9 @@
 package domain.entities;
 
+import java.util.UUID;
+
 public class Fruit {
+    UUID id;
     String name;
     String description;
 
@@ -8,8 +11,19 @@ public class Fruit {
     };
 
     public Fruit(String name, String description) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.description = description;
+    }
+
+    public Fruit(UUID id, String name, String description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+    }
+
+    public UUID getId() {
+        return this.id;
     }
 
     public String getName() {

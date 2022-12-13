@@ -1,10 +1,13 @@
 package resources;
 
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 import domain.entities.Fruit;
 import domain.repositories.FruitRepository;
@@ -23,6 +26,12 @@ public class FruitResource {
     @GET
     public Set<Fruit> list() {
         return repository.getAll();
+    }
+
+    @GET
+    @Path("/{id}")
+    public Optional<Fruit> getById(@PathParam("id") UUID id) {
+        return repository.getById(id);
     }
 
     @POST
