@@ -6,9 +6,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import domain.entities.Fruit;
 import domain.repositories.FruitRepository;
 
+@Singleton
+@Named("fake")
 public class FruitFakeRepository implements FruitRepository {
     private Set<Fruit> fruits = Collections.newSetFromMap(Collections.synchronizedMap(new LinkedHashMap<>()));
 
