@@ -1,7 +1,9 @@
 package repositories.fake;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -11,6 +13,7 @@ import javax.inject.Singleton;
 
 import domain.entities.Fruit;
 import domain.repositories.FruitRepository;
+import io.smallrye.mutiny.Uni;
 
 @Singleton
 @Named("fake")
@@ -18,29 +21,29 @@ public class FruitFakeRepository implements FruitRepository {
     private Set<Fruit> fruits = Collections.newSetFromMap(Collections.synchronizedMap(new LinkedHashMap<>()));
 
     @Override
-    public Set<Fruit> getAll() {
-        return fruits;
+    public Uni<List<Fruit>> getAll() {
+        return Uni.createFrom().item(new ArrayList<>(fruits));
     }
 
     @Override
-    public Fruit add(Fruit fruit) {
+    public Uni<Fruit> addFruit(Fruit fruit) {
         fruits.add(fruit);
-        return fruit;
+        return Uni.createFrom().item(fruit);
     }
 
     @Override
-    public Optional<Fruit> getById(UUID id) {
+    public Uni<Optional<Fruit>> getById(UUID id) {
         for (Fruit fruit : fruits) {
             if (fruit.getId().equals(id))
-                return Optional.of(fruit);
+                return Uni.createFrom().item(Optional.of(fruit));
         }
-        return Optional.empty();
+        return Uni.createFrom().item(Optional.empty());
     }
 
     @Override
-    public Boolean delete(UUID id) {
+    public Uni<Boolean> deleteFruit(UUID id) {
         fruits.removeIf(fruit -> fruit.getId().equals(id));
-        return true;
+        return Uni.createFrom().item(true);
     }
 
 }

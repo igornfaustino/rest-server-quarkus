@@ -1,17 +1,18 @@
 package domain.repositories;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import domain.entities.Fruit;
+import io.smallrye.mutiny.Uni;
 
 public interface FruitRepository {
-    Set<Fruit> getAll();
+    Uni<List<Fruit>> getAll();
 
-    Optional<Fruit> getById(UUID id);
+    Uni<Optional<Fruit>> getById(UUID id);
 
-    Fruit add(Fruit fruit);
+    Uni<Fruit> addFruit(Fruit fruit);
 
-    Boolean delete(UUID id);
+    Uni<Boolean> deleteFruit(UUID id);
 }

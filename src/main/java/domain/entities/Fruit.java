@@ -2,6 +2,9 @@ package domain.entities;
 
 import java.util.UUID;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
+@RegisterForReflection
 public class Fruit {
     UUID id;
     String name;

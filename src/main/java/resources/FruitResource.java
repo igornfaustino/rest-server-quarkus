@@ -21,41 +21,36 @@ import org.jboss.logging.Logger;
 import domain.entities.Fruit;
 import domain.repositories.FruitRepository;
 import io.smallrye.mutiny.Uni;
-import repositories.postgres.FruitPostgresRepository;
 
 @Path("/fruits")
 public class FruitResource {
     FruitRepository fruitRepository;
 
-    @Inject
-    FruitPostgresRepository postgresRepository;
     private AtomicLong counter = new AtomicLong(0);
 
     private static final Logger LOGGER = Logger.getLogger(FruitResource.class);
 
     @Inject
-    public FruitResource(@Named("fake") FruitRepository fruitRepository) {
+    public FruitResource(@Named("postgres") FruitRepository fruitRepository) throws InterruptedException {
         this.fruitRepository = fruitRepository;
-        fruitRepository.add(new Fruit("Morango", "Fruta doce"));
-        fruitRepository.add(new Fruit("Pera", "Fruta doce"));
     }
 
     @GET
     public Uni<List<Fruit>> list() {
         LOGGER.info("Listing all fruits");
-        return postgresRepository.getAll();
+        return fruitRepository.getAll();
     }
 
     @GET
     @Path("/can-fail")
     @Retry(maxRetries = 4)
-    public Response maybeFaillist() {
+    public Uni<List<Fruit>> maybeFaillist() {
         final Long invocationNumber = counter.getAndIncrement();
 
         maybeFail(String.format("CoffeeResource#coffees() invocation #%d failed", invocationNumber));
 
         LOGGER.infof("CoffeeResource#coffees() invocation #%d returning successfully", invocationNumber);
-        return Response.ok(fruitRepository.getAll()).build();
+        return fruitRepository.getAll();
     }
 
     private void maybeFail(String failureLogMessage) {
@@ -68,7 +63,7 @@ public class FruitResource {
     @GET
     @Path("/{id}")
     public Response getById(@PathParam("id") UUID id) {
-        Optional<Fruit> fruit = fruitRepository.getById(id);
+        Optional<Fruit> fruit = fruitRepository.getById(id).await().indefinitely();
         if (fruit.isEmpty())
             return Response.noContent().status(404).build();
         return Response.ok(fruit.get()).build();
@@ -76,12 +71,12 @@ public class FruitResource {
 
     @POST
     public Uni<Fruit> add(Fruit fruit) {
-        return postgresRepository.add(fruit);
+        return fruitRepository.addFruit(fruit);
     }
 
     @DELETE
     @Path("/{id}")
-    public Response delete(@PathParam("id") UUID id) {
-        return Response.ok(fruitRepository.delete(id)).build();
+    public Uni<Boolean> delete(@PathParam("id") UUID id) {
+        return fruitRepository.deleteFruit(id);
     }
 }
