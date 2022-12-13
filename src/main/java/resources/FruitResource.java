@@ -1,7 +1,6 @@
 package resources;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.ws.rs.DELETE;
@@ -9,6 +8,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
 
 import domain.entities.Fruit;
 import domain.repositories.FruitRepository;
@@ -25,24 +25,27 @@ public class FruitResource {
     }
 
     @GET
-    public Set<Fruit> list() {
-        return repository.getAll();
+    public Response list() {
+        return Response.ok(repository.getAll()).build();
     }
 
     @GET
     @Path("/{id}")
-    public Optional<Fruit> getById(@PathParam("id") UUID id) {
-        return repository.getById(id);
+    public Response getById(@PathParam("id") UUID id) {
+        Optional<Fruit> fruit = repository.getById(id);
+        if (fruit.isEmpty())
+            return Response.noContent().status(404).build();
+        return Response.ok(fruit.get()).build();
     }
 
     @POST
-    public Fruit add(Fruit fruit) {
-        return repository.add(fruit);
+    public Response add(Fruit fruit) {
+        return Response.ok(repository.add(fruit)).status(201).build();
     }
 
     @DELETE
     @Path("/{id}")
-    public Boolean delete(@PathParam("id") UUID id) {
-        return repository.delete(id);
+    public Response delete(@PathParam("id") UUID id) {
+        return Response.ok(repository.delete(id)).build();
     }
 }
