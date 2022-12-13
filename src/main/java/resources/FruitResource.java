@@ -1,5 +1,6 @@
 package resources;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -19,10 +20,15 @@ import org.jboss.logging.Logger;
 
 import domain.entities.Fruit;
 import domain.repositories.FruitRepository;
+import io.smallrye.mutiny.Uni;
+import repositories.postgres.FruitPostgresRepository;
 
 @Path("/fruits")
 public class FruitResource {
     FruitRepository fruitRepository;
+
+    @Inject
+    FruitPostgresRepository postgresRepository;
     private AtomicLong counter = new AtomicLong(0);
 
     private static final Logger LOGGER = Logger.getLogger(FruitResource.class);
@@ -35,9 +41,9 @@ public class FruitResource {
     }
 
     @GET
-    public Response list() {
+    public Uni<List<Fruit>> list() {
         LOGGER.info("Listing all fruits");
-        return Response.ok(fruitRepository.getAll()).build();
+        return postgresRepository.getAll();
     }
 
     @GET
@@ -69,8 +75,8 @@ public class FruitResource {
     }
 
     @POST
-    public Response add(Fruit fruit) {
-        return Response.ok(fruitRepository.add(fruit)).status(201).build();
+    public Uni<Fruit> add(Fruit fruit) {
+        return postgresRepository.add(fruit);
     }
 
     @DELETE
