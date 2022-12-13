@@ -12,4 +12,6 @@ public interface FruitRepository {
     Optional<Fruit> getById(UUID id);
 
     Fruit add(Fruit fruit);
+
+    Boolean delete(UUID id);
 }

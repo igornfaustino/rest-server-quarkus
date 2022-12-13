@@ -32,4 +32,10 @@ public class FruitFakeRepository implements FruitRepository {
         return Optional.empty();
     }
 
+    @Override
+    public Boolean delete(UUID id) {
+        fruits.removeIf(fruit -> fruit.getId().equals(id));
+        return true;
+    }
+
 }

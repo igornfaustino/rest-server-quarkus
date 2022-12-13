@@ -8,6 +8,7 @@ public class Fruit {
     String description;
 
     public Fruit() {
+        this.id = UUID.randomUUID();
     };
 
     public Fruit(String name, String description) {
