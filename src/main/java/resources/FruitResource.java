@@ -1,5 +1,6 @@
 package resources;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -13,7 +14,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
 
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.logging.Logger;
@@ -31,7 +31,7 @@ public class FruitResource {
     private static final Logger LOGGER = Logger.getLogger(FruitResource.class);
 
     @Inject
-    public FruitResource(@Named("postgres") FruitRepository fruitRepository) throws InterruptedException {
+    public FruitResource(@Named("postgres") FruitRepository fruitRepository) {
         this.fruitRepository = fruitRepository;
     }
 
@@ -64,11 +64,8 @@ public class FruitResource {
     @GET
     @Retry(maxRetries = 4)
     @Path("/{id}")
-    public Response getById(@PathParam("id") UUID id) {
-        Optional<Fruit> fruit = fruitRepository.getById(id).await().indefinitely();
-        if (fruit.isEmpty())
-            return Response.noContent().status(404).build();
-        return Response.ok(fruit.get()).build();
+    public Uni<Optional<Fruit>> getById(@PathParam("id") UUID id) {
+        return fruitRepository.getById(id);
     }
 
     @POST
