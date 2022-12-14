@@ -36,6 +36,7 @@ public class FruitResource {
     }
 
     @GET
+    @Retry(maxRetries = 4)
     public Uni<List<Fruit>> list() {
         LOGGER.info("Listing all fruits");
         return fruitRepository.getAll();
@@ -61,6 +62,7 @@ public class FruitResource {
     }
 
     @GET
+    @Retry(maxRetries = 4)
     @Path("/{id}")
     public Response getById(@PathParam("id") UUID id) {
         Optional<Fruit> fruit = fruitRepository.getById(id).await().indefinitely();
@@ -75,6 +77,7 @@ public class FruitResource {
     }
 
     @DELETE
+    @Retry(maxRetries = 4)
     @Path("/{id}")
     public Uni<Boolean> delete(@PathParam("id") UUID id) {
         return fruitRepository.deleteFruit(id);
